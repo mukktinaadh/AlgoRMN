@@ -1,7 +1,7 @@
 export default function AboutStrip() {
   return (
-    <section className="bg-base py-16 px-6 border-b border-border">
-      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12">
+    <section className="bg-base py-20 px-6 border-b border-border">
+      <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 relative">
         {/* Left — Author */}
         <div>
           <p className="font-ui text-xs tracking-widest text-text-muted uppercase mb-4">
@@ -25,6 +25,9 @@ export default function AboutStrip() {
             from first principles.
           </p>
         </div>
+
+        {/* Vertical divider — desktop only */}
+        <div className="hidden md:block absolute left-1/2 top-0 bottom-0 w-px bg-border" />
 
         {/* Right — Value props */}
         <div className="flex flex-col justify-center gap-4">
