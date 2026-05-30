@@ -1,55 +1,71 @@
 "use client";
 
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 
-interface NewsletterFormProps {
-  placeholder?: string;
-}
-
-export default function NewsletterForm({
-  placeholder = "your@email.com",
-}: NewsletterFormProps) {
+export default function NewsletterForm() {
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!email || !email.includes("@")) return;
+    setError("");
+    setLoading(true);
 
-    setStatus("loading");
-    // TODO: Wire to /api/subscribe
-    console.log("Subscribe:", email);
-    setTimeout(() => {
-      setStatus("success");
-      setEmail("");
-    }, 600);
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setSuccess(true);
+        setEmail("");
+      } else {
+        setError(data.error || "Something went wrong");
+      }
+    } catch {
+      setError("Network error. Try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (status === "success") {
+  if (success) {
     return (
       <p className="font-ui text-sm text-accent">
-        ✓ You&apos;re subscribed. Welcome aboard.
+        ✓ You&apos;re in. First article incoming.
       </p>
     );
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-0">
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder={placeholder}
-        required
-        className="flex-1 bg-elevated border border-border text-text-primary font-ui text-sm px-4 py-3 rounded-none placeholder:text-text-muted focus:outline-none focus:border-accent transition-colors"
-      />
-      <button
-        type="submit"
-        disabled={status === "loading"}
-        className="bg-accent text-[#0C0C0C] font-ui font-semibold text-sm px-6 py-3 rounded-none hover:bg-accent-hover transition-colors cursor-pointer disabled:opacity-50"
-      >
-        {status === "loading" ? "..." : "Subscribe →"}
-      </button>
+    <form onSubmit={handleSubmit}>
+      <div className="flex gap-0">
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="your@email.com"
+          required
+          disabled={loading}
+          className="flex-1 bg-elevated border border-border text-text-primary font-body text-sm px-4 py-3 placeholder:text-text-muted focus:outline-none focus:border-accent disabled:opacity-50"
+        />
+        <button
+          type="submit"
+          disabled={loading}
+          className="bg-accent text-[#0C0C0C] font-ui text-sm font-semibold px-6 py-3 hover:bg-accent/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "Subscribing..." : "Subscribe →"}
+        </button>
+      </div>
+      {error && (
+        <p className="font-ui text-xs text-red-400 mt-2">{error}</p>
+      )}
     </form>
   );
 }
