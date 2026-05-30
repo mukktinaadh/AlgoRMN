@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 
@@ -23,6 +24,8 @@ export default function NewArticlePage() {
   const [slugEdited, setSlugEdited] = useState(false);
   const [published, setPublished] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const router = useRouter();
 
   // Auto-generate slug from title (unless user manually edited it)
   useEffect(() => {
@@ -41,20 +44,45 @@ export default function NewArticlePage() {
     setTimeout(() => setToast(null), 2000);
   }, []);
 
-  const handleSave = (isPublish: boolean) => {
-    const payload = {
-      title,
-      content,
-      excerpt,
-      tags: tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      slug,
-      published: isPublish,
-    };
-    console.log(payload);
-    showToast(isPublish ? "Published!" : "Saved as draft");
+  const handleSave = async (isPublish: boolean) => {
+    if (!title || !content) {
+      showToast("Title and content are required");
+      return;
+    }
+
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/articles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          slug,
+          excerpt,
+          content,
+          tags: tags
+            .split(",")
+            .map((t) => t.trim())
+            .filter(Boolean),
+          published: isPublish,
+          reading_time_minutes: readTime,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        showToast(data.error || "Failed to save");
+        return;
+      }
+
+      showToast(isPublish ? "Published!" : "Saved as draft");
+      setTimeout(() => router.push("/admin"), 600);
+    } catch {
+      showToast("Network error — try again");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -79,15 +107,17 @@ export default function NewArticlePage() {
         <div className="flex items-center gap-2 shrink-0">
           <button
             onClick={() => handleSave(false)}
-            className="border border-border text-text-secondary font-ui text-xs px-4 py-2 hover:border-accent hover:text-accent transition-colors cursor-pointer"
+            disabled={saving}
+            className="border border-border text-text-secondary font-ui text-xs px-4 py-2 hover:border-accent hover:text-accent transition-colors cursor-pointer disabled:opacity-50"
           >
-            Save Draft
+            {saving ? "Saving…" : "Save Draft"}
           </button>
           <button
             onClick={() => handleSave(true)}
-            className="bg-accent text-[#0C0C0C] font-ui text-xs font-semibold px-4 py-2 hover:bg-accent/90 transition-colors cursor-pointer"
+            disabled={saving}
+            className="bg-accent text-[#0C0C0C] font-ui text-xs font-semibold px-4 py-2 hover:bg-accent/90 transition-colors cursor-pointer disabled:opacity-50"
           >
-            Publish
+            {saving ? "Saving…" : "Publish"}
           </button>
         </div>
       </div>

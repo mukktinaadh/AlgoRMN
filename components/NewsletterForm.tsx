@@ -2,7 +2,7 @@
 
 import { useState, FormEvent } from "react";
 
-export default function NewsletterForm() {
+export default function NewsletterForm({ placeholder = "your@email.com" }: { placeholder?: string }) {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -50,7 +50,7 @@ export default function NewsletterForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="your@email.com"
+          placeholder={placeholder}
           required
           disabled={loading}
           className="flex-1 bg-elevated border border-border text-text-primary font-body text-sm px-4 py-3 placeholder:text-text-muted focus:outline-none focus:border-accent disabled:opacity-50"

@@ -4,77 +4,72 @@ import ArticleCard from "@/components/ArticleCard";
 import AboutStrip from "@/components/AboutStrip";
 import NewsletterCTA from "@/components/NewsletterCTA";
 import Footer from "@/components/Footer";
+import { createClient } from "@/lib/supabase";
+import { format } from "date-fns";
 
-/* ── Mock Data ──────────────────────────────────────────────── */
-
-const FEATURED_ARTICLE = {
-  title:
-    "How Consistent Hashing Distributes Load Without Reshuffling Everything",
-  tag: "System Design",
-  excerpt:
-    "Most engineers know consistent hashing exists. Few know exactly why it was invented, what problem it solves at 3am when a node dies, and how DynamoDB and Cassandra actually implement it.",
-  readTime: 9,
-  date: "May 28, 2026",
-  slug: "consistent-hashing",
-};
-
-const RECENT_ARTICLES = [
-  {
-    title: "Why PostgreSQL Uses MVCC Instead of Locking",
-    tag: "Database Internals",
-    excerpt:
-      "Locks block. MVCC lets readers and writers coexist without stepping on each other. Here is exactly how Postgres implements it under the hood.",
-    readTime: 11,
-    date: "May 21, 2026",
-    slug: "postgres-mvcc",
-  },
-  {
-    title: "The Skip List: Probabilistic but Faster Than You Think",
-    tag: "DSA",
-    excerpt:
-      "Redis uses a skip list for its sorted sets. Here is why a probabilistic data structure beats a balanced BST in practice.",
-    readTime: 7,
-    date: "May 14, 2026",
-    slug: "skip-lists",
-  },
-  {
-    title: "Rate Limiting at Scale: Token Bucket vs Sliding Window",
-    tag: "Backend",
-    excerpt:
-      "Every API needs rate limiting. The algorithm you pick changes your memory usage, accuracy, and burst behaviour at scale.",
-    readTime: 8,
-    date: "May 7, 2026",
-    slug: "rate-limiting",
-  },
-];
+export const revalidate = 60;
 
 /* ── Page ───────────────────────────────────────────────────── */
 
-export default function Home() {
+export default async function Home() {
+  const supabase = createClient();
+
+  /* eslint-disable @typescript-eslint/no-explicit-any */
+  const { data: articles } = await supabase
+    .from("articles")
+    .select(
+      `
+      id, title, slug, excerpt, reading_time_minutes, published_at,
+      article_tags ( tags ( name, slug ) )
+    `
+    )
+    .eq("published", true)
+    .order("published_at", { ascending: false })
+    .limit(4);
+
+  const mapped = (articles ?? []).map((a: any) => ({
+    title: a.title as string,
+    tag: (a.article_tags?.[0]?.tags?.name as string) ?? "Engineering",
+    excerpt: (a.excerpt as string) ?? "",
+    readTime: a.reading_time_minutes as number,
+    date: a.published_at
+      ? format(new Date(a.published_at), "MMM d, yyyy")
+      : "Draft",
+    slug: a.slug as string,
+  }));
+  /* eslint-enable @typescript-eslint/no-explicit-any */
+
+  const featured = mapped[0] ?? null;
+  const recent = mapped.slice(1);
+
   return (
     <>
       <Navbar />
       <Hero />
 
       {/* Featured Article */}
-      <section className="max-w-5xl mx-auto px-6 py-20">
-        <p className="font-ui text-xs tracking-[0.2em] uppercase text-accent mb-8">
-          This Week
-        </p>
-        <ArticleCard featured={true} {...FEATURED_ARTICLE} />
-      </section>
+      {featured && (
+        <section className="max-w-5xl mx-auto px-6 py-20">
+          <p className="font-ui text-xs tracking-[0.2em] uppercase text-accent mb-8">
+            This Week
+          </p>
+          <ArticleCard featured={true} {...featured} />
+        </section>
+      )}
 
       {/* Recent Deep-Dives */}
-      <section className="max-w-5xl mx-auto px-6 pb-20">
-        <p className="font-ui text-xs tracking-[0.2em] uppercase text-accent mb-8">
-          Recent Deep-Dives
-        </p>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {RECENT_ARTICLES.map((a) => (
-            <ArticleCard key={a.slug} {...a} />
-          ))}
-        </div>
-      </section>
+      {recent.length > 0 && (
+        <section className="max-w-5xl mx-auto px-6 pb-20">
+          <p className="font-ui text-xs tracking-[0.2em] uppercase text-accent mb-8">
+            Recent Deep-Dives
+          </p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {recent.map((a) => (
+              <ArticleCard key={a.slug} {...a} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <AboutStrip />
       <NewsletterCTA />
