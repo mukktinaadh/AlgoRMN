@@ -1,0 +1,270 @@
+/*
+ * ═══════════════════════════════════════════════════════════
+ * ALGORMN — Dark Editorial Design System
+ * ═══════════════════════════════════════════════════════════
+ *
+ * Typography: Playfair Display × IBM Plex Mono × IBM Plex Sans
+ * Palette: Near-black base + warm off-white text + amber accent
+ * Philosophy: Dense, authoritative, no decorative noise.
+ *             Typography does all the heavy lifting.
+ * ═══════════════════════════════════════════════════════════
+ */
+
+/* ── Tailwind v4 ──────────────────────────────────────────── */
+@import "tailwindcss";
+
+/*
+ * Fonts are loaded via next/font/google in layout.tsx
+ * (automatic subsetting, no render-blocking requests)
+ */
+
+/* ── Design Tokens (CSS Custom Properties) ────────────────── */
+:root {
+  /* Backgrounds */
+  --color-base: #0C0C0C;
+  --color-surface: #141414;
+  --color-elevated: #1C1C1C;
+
+  /* Borders */
+  --color-border: #2A2A2A;
+
+  /* Text */
+  --color-text-primary: #F0EDE6;
+  --color-text-secondary: #A09C94;
+  --color-text-muted: #5C5955;
+
+  /* Accent — the ONE color */
+  --color-accent: #E8C547;
+  --color-accent-hover: #F5D660;
+
+  /* Components */
+  --color-tag-bg: #1E1E1E;
+  --color-tag-text: #A09C94;
+  --color-code-bg: #111111;
+
+  /* Radius — sharp, editorial */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+
+  /* Fonts */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "IBM Plex Mono", monospace;
+  --font-ui: "IBM Plex Sans", sans-serif;
+}
+
+/* ── Tailwind v4 Theme Binding ────────────────────────────── */
+@theme inline {
+  /* Colors */
+  --color-base: var(--color-base);
+  --color-surface: var(--color-surface);
+  --color-elevated: var(--color-elevated);
+  --color-border: var(--color-border);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-tag-bg: var(--color-tag-bg);
+  --color-tag-text: var(--color-tag-text);
+  --color-code-bg: var(--color-code-bg);
+
+  /* Fonts */
+  --font-display: "Playfair Display", Georgia, serif;
+  --font-body: "IBM Plex Mono", monospace;
+  --font-ui: "IBM Plex Sans", sans-serif;
+
+  /* Radius */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+
+  /* Spacing */
+  --spacing-article-max: 720px;
+  --spacing-sidebar-w: 320px;
+
+  /* Font sizes */
+  --text-display-xl: 3.5rem;
+  --text-display-xl--line-height: 1.1;
+  --text-display-xl--letter-spacing: -0.02em;
+  --text-display-lg: 2.75rem;
+  --text-display-lg--line-height: 1.15;
+  --text-display-lg--letter-spacing: -0.02em;
+  --text-display-md: 2rem;
+  --text-display-md--line-height: 1.2;
+  --text-display-md--letter-spacing: -0.01em;
+}
+
+/* ── Base Styles ──────────────────────────────────────────── */
+body {
+  background-color: var(--color-base);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ── Headings — Playfair Display ──────────────────────────── */
+h1, h2, h3 {
+  font-family: var(--font-display);
+  color: var(--color-text-primary);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+h1 {
+  font-size: 2.75rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+h3 {
+  font-size: 1.5rem;
+}
+
+h4, h5, h6 {
+  font-family: var(--font-ui);
+  color: var(--color-text-primary);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* ── Text Selection — gold highlight (distinctive) ────────── */
+::selection {
+  background-color: var(--color-accent);
+  color: var(--color-base);
+}
+
+::-moz-selection {
+  background-color: var(--color-accent);
+  color: var(--color-base);
+}
+
+/* ── Links — inherit color, accent underline on hover ─────── */
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+
+a:hover {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-underline-offset: 3px;
+}
+
+/* ── Custom Scrollbar — thin, dark, gold on hover ─────────── */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border) var(--color-base);
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--color-base);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent);
+}
+
+/* ── Code Blocks ──────────────────────────────────────────── */
+pre {
+  background-color: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 1.25rem;
+  overflow-x: auto;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+code {
+  font-family: var(--font-body);
+  font-size: 0.875em;
+}
+
+/* Inline code */
+:not(pre) > code {
+  background-color: var(--color-code-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 0.15em 0.4em;
+  font-size: 0.85em;
+}
+
+/* ── Tag Pills ────────────────────────────────────────────── */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2em 0.65em;
+  background-color: var(--color-tag-bg);
+  color: var(--color-tag-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-ui);
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  transition: border-color 0.2s ease, color 0.2s ease;
+}
+
+.tag-pill:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+/* ── Utility: focus ring ──────────────────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* ── Horizontal Rule ──────────────────────────────────────── */
+hr {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2rem 0;
+}
+
+/* ── Fade-in-up animation (for scroll reveals) ────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+/* Stagger delays for grid items */
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-400 { animation-delay: 400ms; }
