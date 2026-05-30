@@ -4,6 +4,12 @@ import { Resend } from 'resend'
 
 export async function POST(req: NextRequest) {
   try {
+    console.log('ENV CHECK:', {
+      hasResendKey: !!process.env.RESEND_API_KEY,
+      fromEmail: process.env.RESEND_FROM_EMAIL,
+      hasSBUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+    })
+
     const { email } = await req.json()
 
     // Validate
